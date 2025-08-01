@@ -1,0 +1,113 @@
+{
+  "snippets": [
+    {
+      "name": "New Thor Command",
+      "prefix": "thorcommand",
+      "body": [
+        "desc '${1:command}', '${2:Description}'",
+        "method_option :${3:option}, type: :${4:string}, desc: '${5:Option description}'",
+        "def ${1:command}",
+        "  ${6:# Command implementation}",
+        "end"
+      ]
+    },
+    {
+      "name": "New Service Class",
+      "prefix": "service",
+      "body": [
+        "module TarotAgent",
+        "  module Services",
+        "    class ${1:ServiceName}",
+        "      def self.call(...)",
+        "        new(...).call",
+        "      end",
+        "",
+        "      def initialize(${2:params})",
+        "        @${2:params} = ${2:params}",
+        "      end",
+        "",
+        "      def call",
+        "        ${3:# Service logic}",
+        "      end",
+        "",
+        "      private",
+        "",
+        "      ${4:# Private methods}",
+        "    end",
+        "  end",
+        "end"
+      ]
+    },
+    {
+      "name": "RSpec Service Test",
+      "prefix": "specservice",
+      "body": [
+        "require 'spec_helper'",
+        "",
+        "RSpec.describe TarotAgent::Services::${1:ServiceName} do",
+        "  describe '.call' do",
+        "    subject { described_class.call(${2:params}) }",
+        "",
+        "    let(:${2:params}) { ${3:# test data} }",
+        "",
+        "    it '${4:does something}' do",
+        "      ${5:# test expectation}",
+        "    end",
+        "  end",
+        "end"
+      ]
+    },
+    {
+      "name": "TTY Prompt",
+      "prefix": "ttyprompt",
+      "body": [
+        "prompt = TTY::Prompt.new",
+        "answer = prompt.${1:select}('${2:Question}') do |menu|",
+        "  menu.choice '${3:Option 1}', ${4:value1}",
+        "  menu.choice '${5:Option 2}', ${6:value2}",
+        "end"
+      ]
+    },
+    {
+      "name": "TTY Spinner",
+      "prefix": "ttyspinner",
+      "body": [
+        "spinner = TTY::Spinner.new('[:spinner] ${1:Loading...}', format: :${2:pulse_2})",
+        "spinner.auto_spin",
+        "${3:# Long operation}",
+        "spinner.${4:success}('${5:Done!}')"
+      ]
+    },
+    {
+      "name": "ActiveRecord Model",
+      "prefix": "armodel",
+      "body": [
+        "module TarotAgent",
+        "  module Models",
+        "    class ${1:ModelName} < ActiveRecord::Base",
+        "      ${2:# associations}",
+        "      ${3:# validations}",
+        "      ${4:# scopes}",
+        "",
+        "      ${5:# instance methods}",
+        "    end",
+        "  end",
+        "end"
+      ]
+    },
+    {
+      "name": "Database Migration",
+      "prefix": "migration",
+      "body": [
+        "class ${1:MigrationName} < ActiveRecord::Migration[7.1]",
+        "  def change",
+        "    ${2:create_table} :${3:table_name} do |t|",
+        "      ${4:# columns}",
+        "      t.timestamps",
+        "    end",
+        "  end",
+        "end"
+      ]
+    }
+  ]
+}

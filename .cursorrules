@@ -1,0 +1,75 @@
+# Tarot Agent - Ruby CLI Application (NOT Rails)
+
+You are working on a standalone Ruby CLI application (not Rails) that provides interactive tarot card readings using Claude 3.5 Sonnet AI.
+
+## Project Overview
+- Standalone Ruby CLI application (not Rails) using Thor for command-line interface
+- ActiveRecord with standalone_migrations gem for database management
+- SQLite database for persistence
+- TTY gems for rich terminal UI (prompts, spinners, boxes)
+- Anthropic Claude API for AI-powered tarot interpretations
+- Service-oriented architecture with clear separation of concerns
+
+## Architecture
+- **Services**: Business logic in `lib/tarot_agent/services/`
+  - `ClaudeService`: Handles Claude AI API interactions
+  - `TarotService`: Manages tarot reading logic and card selection
+- **Models**: ActiveRecord models in `lib/tarot_agent/models/`
+  - `TarotCard`: Individual tarot cards with meanings
+  - `Reading`: User reading sessions with interpretations
+- **CLI**: Thor-based commands in `lib/tarot_agent/cli/app.rb`
+
+## Development Guidelines
+1. Follow Ruby best practices and conventions
+2. Use service objects for business logic
+3. Keep CLI commands thin - delegate to services
+4. Write comprehensive RSpec tests
+5. Use FactoryBot for test data
+6. Follow existing code style (RuboCop configured)
+
+## Common Commands
+- Run app: `./bin/tarot-agent [command]`
+- Test: `./bin/test` or `bundle exec rspec`
+- Lint: `bundle exec rubocop -a`
+- Database: `bundle exec rake db:migrate`
+
+## Key Dependencies
+- Ruby 3.2+
+- ActiveRecord 7.x
+- Thor for CLI
+- TTY gems for terminal UI
+- Anthropic gem for Claude API
+- RSpec for testing
+- Zeitwerk for autoloading
+
+## Testing Strategy
+- Unit tests for models and services
+- Integration tests for full workflows
+- VCR for API interaction recording
+- SimpleCov for coverage reporting
+
+## Environment
+- Requires `ANTHROPIC_API_KEY` environment variable
+- Uses SQLite for development/test
+- Designed for PostgreSQL in production
+
+## Code Style
+- Follow RuboCop rules
+- Prefer service objects over fat models/controllers
+- Use descriptive method and variable names
+- Document complex logic with comments
+- Keep methods small and focused
+
+## Important Notes
+- Never commit API keys or secrets
+- Database seeds include complete 78-card tarot deck
+- Supports multiple spread types: three-card, celtic-cross, single-card
+- All readings are persisted for history viewing
+- Error handling includes graceful API failures
+
+When suggesting code:
+1. Maintain consistency with existing patterns
+2. Leverage existing services and utilities
+3. Follow the established testing patterns
+4. Use TTY gems for any UI enhancements
+5. Ensure proper error handling and user feedback

@@ -1,0 +1,76 @@
+{
+  "agents": [
+    {
+      "name": "Ruby Test Assistant",
+      "description": "Helps write and maintain RSpec tests for the tarot-agent CLI application",
+      "triggers": ["test", "spec", "rspec"],
+      "prompts": [
+        "When writing tests, use FactoryBot for test data creation",
+        "Follow the existing test patterns in the spec/ directory",
+        "Use let statements for test setup",
+        "Include both positive and negative test cases",
+        "Test edge cases and error conditions",
+        "Mock external API calls to Claude using VCR or WebMock",
+        "Remember this is a pure Ruby CLI app, not Rails"
+      ]
+    },
+    {
+      "name": "Tarot Domain Expert",
+      "description": "Provides guidance on tarot card meanings and reading interpretations",
+      "triggers": ["tarot", "card", "spread", "reading"],
+      "prompts": [
+        "Ensure tarot card meanings are accurate and comprehensive",
+        "Support traditional interpretations for upright and reversed cards",
+        "Validate spread positions have appropriate meanings",
+        "Maintain consistency with the 78-card deck structure"
+      ]
+    },
+    {
+      "name": "Ruby Style Guide",
+      "description": "Enforces Ruby best practices and project conventions for CLI applications",
+      "triggers": ["style", "rubocop", "convention"],
+      "prompts": [
+        "Follow RuboCop rules configured in the project",
+        "Use service objects for complex business logic",
+        "Keep methods under 10 lines when possible",
+        "Prefer descriptive variable names over comments",
+        "Use Ruby idioms and conventions",
+        "This is a standalone Ruby CLI app using Thor, not Rails"
+      ]
+    },
+    {
+      "name": "Database Migration Helper",
+      "description": "Assists with standalone_migrations gem and ActiveRecord schema changes",
+      "triggers": ["migration", "database", "schema"],
+      "prompts": [
+        "Use standalone_migrations gem commands for migrations",
+        "Create reversible migrations when possible",
+        "Add appropriate indexes for foreign keys",
+        "Include timestamps for all tables",
+        "Consider data migrations separately from schema migrations",
+        "Test migrations with rollback",
+        "Remember to use bundle exec rake db:new_migration for new migrations"
+      ]
+    },
+    {
+      "name": "CLI Enhancement Assistant",
+      "description": "Helps improve the Thor CLI interface and TTY gem usage",
+      "triggers": ["cli", "thor", "tty", "command"],
+      "prompts": [
+        "Use TTY::Prompt for user interactions",
+        "Add TTY::Spinner for long-running operations",
+        "Use TTY::Box for formatting output",
+        "Implement proper error handling with user-friendly messages",
+        "Add helpful command descriptions and examples"
+      ]
+    }
+  ],
+  "globalContext": {
+    "projectType": "ruby-cli",
+    "framework": "thor",
+    "testingFramework": "rspec",
+    "database": "sqlite-activerecord",
+    "apiIntegration": "anthropic-claude",
+    "uiLibrary": "tty"
+  }
+}
