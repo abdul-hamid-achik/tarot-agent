@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Add lib to the load path
+$LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
+
+# Load environment variables
+require 'dotenv'
+Dotenv.load
+
+# Load and start the CLI application
+require 'tarot_agent/cli/app'
+
+# Start the Thor CLI
+TarotAgent::CLI::App.start(ARGV)

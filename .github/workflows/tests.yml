@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        ruby-version: ['3.2', '3.3']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    
+    - name: Setup test database
+      run: |
+        bundle exec rake db:create
+        bundle exec rake db:migrate
+        bundle exec rake db:seed
+      env:
+        APP_ENV: test
+        ANTHROPIC_API_KEY: test-key
+    
+    - name: Run tests
+      run: bundle exec rspec
+      env:
+        APP_ENV: test
+        ANTHROPIC_API_KEY: test-key
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      if: matrix.ruby-version == '3.2'
+      with:
+        name: coverage-report
+        path: coverage/
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run RuboCop
+      run: bundle exec rubocop
