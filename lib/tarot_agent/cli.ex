@@ -23,8 +23,16 @@ defmodule TarotAgent.CLI do
       {:command, "config", args} ->
         handle_config_command(args)
         
-      {:command, "reading", _} ->
-        interactive_reading()
+      {:command, "reading", args} ->
+        case args do
+          [] -> interactive_reading()
+          [question] when is_binary(question) ->
+            # If they provided a question with "reading", suggest a spread
+            IO.puts("💡 I see you want a reading with the question: \"#{question}\"")
+            IO.puts("Let me suggest some spreads:")
+            show_suggested_spreads_for_question(question)
+          _ -> interactive_reading()
+        end
         
       {:spread, spread_name, question} ->
         UI.fancy_header("🎴 #{spread_name |> String.replace("-", " ") |> String.split() |> Enum.map(&String.capitalize/1) |> Enum.join(" ")} Reading", 
@@ -34,6 +42,11 @@ defmodule TarotAgent.CLI do
       {:suggestion, :list_spreads, message} ->
         IO.puts("💡 #{message}")
         show_spreads()
+        
+      {:suggestion, :question_with_reading, {question}} ->
+        IO.puts("💡 I see you want a reading with the question: \"#{question}\"")
+        IO.puts("Let me suggest some spreads:")
+        show_suggested_spreads_for_question(question)
         
       {:interactive_clarify, original_input} ->
         case IntelligentParser.interactive_clarification(original_input) do
@@ -140,6 +153,18 @@ defmodule TarotAgent.CLI do
     IO.puts("")
   end
 
+  defp show_suggested_spreads_for_question(question) do
+    IO.puts("")
+    IO.puts("🎴 #{IO.ANSI.cyan()}Quick Options:#{IO.ANSI.reset()}")
+    IO.puts("   • #{IO.ANSI.yellow()}single#{IO.ANSI.reset()} - Quick daily guidance")
+    IO.puts("   • #{IO.ANSI.yellow()}celtic cross#{IO.ANSI.reset()} - Comprehensive 10-card reading")
+    IO.puts("   • #{IO.ANSI.yellow()}past present future#{IO.ANSI.reset()} - Timeline insight")
+    IO.puts("")
+    IO.puts("💬 Try: #{IO.ANSI.cyan()}tarot_agent single \"#{question}\"#{IO.ANSI.reset()}")
+    IO.puts("💬 Or:  #{IO.ANSI.cyan()}tarot_agent celtic cross \"#{question}\"#{IO.ANSI.reset()}")
+    IO.puts("")
+  end
+
 
 
   defp show_help do
@@ -189,13 +214,25 @@ defmodule TarotAgent.CLI do
     Spreads.list_spreads()
     |> Enum.each(&IO.puts("• #{&1}"))
 
-    spread_name = ExPrompt.string("\nWhich spread would you like? ") |> String.trim()
+    spread_input = ExPrompt.string("\nWhich spread would you like? ") |> String.trim()
 
-    case Spreads.get_spread(spread_name) do
+    # Use intelligent parser to find the spread
+    case IntelligentParser.find_spread(spread_input) do
       nil ->
-        IO.puts("Unknown spread. Please choose from the list above.")
+        IO.puts("\n❌ I didn't understand \"#{spread_input}\"")
+        suggestions = IntelligentParser.suggest_spread_alternatives(spread_input)
+        
+        if length(suggestions) > 0 do
+          IO.puts("\n💡 Did you mean:")
+          suggestions
+          |> Enum.take(2)
+          |> Enum.each(fn spread ->
+            spread_info = Spreads.get_spread(spread)
+            IO.puts("   • #{spread} (#{spread_info.name})")
+          end)
+        end
 
-      _spread ->
+      spread_name ->
         question =
           ExPrompt.string("Optional: What question do you have? (press Enter to skip) ")
           |> String.trim()
