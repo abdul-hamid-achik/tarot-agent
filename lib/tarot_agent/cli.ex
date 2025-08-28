@@ -1,21 +1,59 @@
 defmodule TarotAgent.CLI do
-  alias TarotAgent.{ClaudeService, Config, Spreads}
+  alias TarotAgent.{ClaudeService, Config, Spreads, IntelligentParser, UI}
 
   def main(args) do
     case args do
       [] ->
-        show_help()
+        show_interactive_help()
 
-      [command | rest] ->
-        handle_command(command, rest)
+      args ->
+        input = Enum.join(args, " ")
+        handle_intelligent_input(input)
     end
   end
 
-  defp handle_command("help", _), do: show_help()
-  defp handle_command("--help", _), do: show_help()
-  defp handle_command("-h", _), do: show_help()
+  defp handle_intelligent_input(input) do
+    case IntelligentParser.parse_command(input) do
+      {:command, "help", _} ->
+        show_help()
+        
+      {:command, "spreads", _} ->
+        show_spreads()
+        
+      {:command, "config", args} ->
+        handle_config_command(args)
+        
+      {:command, "reading", _} ->
+        interactive_reading()
+        
+      {:spread, spread_name, question} ->
+        UI.fancy_header("🎴 #{spread_name |> String.replace("-", " ") |> String.split() |> Enum.map(&String.capitalize/1) |> Enum.join(" ")} Reading", 
+                       if(question, do: "Question: #{question}", else: "Let the cards guide you"))
+        perform_reading(spread_name, question)
+        
+      {:suggestion, :list_spreads, message} ->
+        IO.puts("💡 #{message}")
+        show_spreads()
+        
+      {:interactive_clarify, original_input} ->
+        case IntelligentParser.interactive_clarification(original_input) do
+          {:spread, spread_name, question} -> 
+            perform_reading(spread_name, question)
+          {:command, command, args} -> 
+            handle_legacy_command(command, args)
+        end
+        
+      _ ->
+        IntelligentParser.smart_error_with_suggestions(input)
+    end
+  end
 
-  defp handle_command("config", args) do
+  # Legacy command handlers for backward compatibility  
+  defp handle_legacy_command("help", _), do: show_help()
+  defp handle_legacy_command("--help", _), do: show_help()
+  defp handle_legacy_command("-h", _), do: show_help()
+
+  defp handle_config_command(args) do
     case args do
       ["set-api-key"] ->
         set_api_key()
@@ -34,45 +72,75 @@ defmodule TarotAgent.CLI do
     end
   end
 
-  defp handle_command("spreads", _) do
-    IO.puts("\nAvailable Spreads:")
-    IO.puts("==================")
+  defp show_spreads do
+    UI.fancy_header("🔮 Available Tarot Spreads", "Choose your path to wisdom")
 
-    Spreads.list_spreads()
-    |> Enum.each(&IO.puts("• #{&1}"))
+    spreads_info = [
+      {"single", "Single Card", "Quick daily guidance"},
+      {"past-present-future", "Past, Present, Future", "Timeline insight"},  
+      {"celtic-cross", "Celtic Cross", "Comprehensive 10-card reading"},
+      {"relationship", "Relationship", "Love and partnership guidance"},
+      {"decision", "Decision Making", "Help with difficult choices"},
+      {"chakra", "Chakra Alignment", "Spiritual energy balance"},
+      {"horseshoe", "Horseshoe", "General life guidance"},
+      {"year-ahead", "Year Ahead", "12-month forecast"},
+      {"mind-body-spirit", "Mind, Body, Spirit", "Holistic wellness insight"}
+    ]
 
+    spreads_info
+    |> Enum.each(fn {key, name, desc} ->
+      IO.puts("🎴 #{IO.ANSI.cyan()}#{key}#{IO.ANSI.reset()} - #{name}")
+      IO.puts("   #{desc}")
+      IO.puts("")
+    end)
+
+    IO.puts("💡 #{IO.ANSI.yellow()}Examples:#{IO.ANSI.reset()}")
+    IO.puts("   tarot_agent celtic cross \"What should I focus on?\"")
+    IO.puts("   tarot_agent single card")
+    IO.puts("   tarot_agent relationship reading")
     IO.puts("")
   end
 
-  defp handle_command("reading", args) do
-    case args do
-      [] ->
-        interactive_reading()
-
-      [spread_name] ->
-        perform_reading(spread_name, nil)
-
-      [spread_name | question_words] ->
-        question = Enum.join(question_words, " ")
-        perform_reading(spread_name, question)
-    end
+  defp show_interactive_help do
+    UI.fancy_header("🔮 Welcome to Tarot Agent", "Your AI-Enhanced Tarot Reading CLI")
+    
+    IO.puts("I understand natural language! Try any of these:")
+    IO.puts("")
+    
+    IO.puts("🎴 #{IO.ANSI.cyan()}Quick Readings:#{IO.ANSI.reset()}")
+    IO.puts("   • tarot_agent single")
+    IO.puts("   • tarot_agent quick reading")
+    IO.puts("   • tarot_agent one card")
+    IO.puts("")
+    
+    IO.puts("🎴 #{IO.ANSI.cyan()}Detailed Readings:#{IO.ANSI.reset()}")
+    IO.puts("   • tarot_agent celtic cross")
+    IO.puts("   • tarot_agent comprehensive reading")
+    IO.puts("   • tarot_agent ten card spread")
+    IO.puts("")
+    
+    IO.puts("🎴 #{IO.ANSI.cyan()}With Questions:#{IO.ANSI.reset()}")
+    IO.puts("   • tarot_agent love reading \"How is my relationship?\"")
+    IO.puts("   • tarot_agent decision \"Should I take this job?\"")
+    IO.puts("   • tarot_agent timeline \"What's coming up?\"")
+    IO.puts("")
+    
+    IO.puts("⚙️ #{IO.ANSI.cyan()}Configuration:#{IO.ANSI.reset()}")
+    IO.puts("   • tarot_agent config set-api-key")
+    IO.puts("   • tarot_agent settings")
+    IO.puts("")
+    
+    IO.puts("📋 #{IO.ANSI.cyan()}Information:#{IO.ANSI.reset()}")
+    IO.puts("   • tarot_agent spreads")
+    IO.puts("   • tarot_agent help")
+    IO.puts("")
+    
+    IO.puts("✨ #{IO.ANSI.yellow()}I'm smart! I understand variations like:#{IO.ANSI.reset()}")
+    IO.puts("   'celtic cross' = 'celtic-cross' = 'comprehensive' = '10 card'")
+    IO.puts("")
   end
 
-  # Handle direct spread names as commands
-  defp handle_command(spread_name, question_words) do
-    if Spreads.get_spread(spread_name) do
-      question =
-        case question_words do
-          [] -> nil
-          words -> Enum.join(words, " ")
-        end
 
-      perform_reading(spread_name, question)
-    else
-      IO.puts("Unknown command: #{spread_name}")
-      IO.puts("Use 'help' to see available commands.")
-    end
-  end
 
   defp show_help do
     IO.puts("""
