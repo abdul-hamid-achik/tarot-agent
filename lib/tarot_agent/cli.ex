@@ -156,13 +156,9 @@ defmodule TarotAgent.CLI do
         # Show basic reading
         IO.puts(Spreads.format_reading(reading))
 
-        # Try to get AI enhancement
+        # Try to get AI enhancement with streaming
         case ClaudeService.enhance_reading(reading, question) do
-          {:ok, ai_interpretation} ->
-            IO.puts("═══════════════════════════════════════════════════════════════")
-            IO.puts("🤖 AI-Enhanced Interpretation")
-            IO.puts("═══════════════════════════════════════════════════════════════")
-            IO.puts(ai_interpretation)
+          {:ok, _} ->
             IO.puts("")
 
           {:error, reason} ->

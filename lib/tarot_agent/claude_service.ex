@@ -7,18 +7,21 @@ defmodule TarotAgent.ClaudeService do
 
     if api_key do
       model = TarotAgent.Config.get_claude_model()
-      make_claude_request(reading, question, api_key, model)
+      make_claude_request_streaming(reading, question, api_key, model)
     else
       {:error, "No Anthropic API key found. Please set your API key using the config command."}
     end
   end
 
-  defp make_claude_request(reading, question, api_key, model) do
+  defp make_claude_request_streaming(reading, question, api_key, model) do
+    alias TarotAgent.UI
+    
     prompt = build_prompt(reading, question)
 
     body = %{
       model: model,
       max_tokens: 1000,
+      stream: true,
       messages: [
         %{
           role: "user",
@@ -30,24 +33,35 @@ defmodule TarotAgent.ClaudeService do
     headers = [
       {"Content-Type", "application/json"},
       {"x-api-key", api_key},
-      {"anthropic-version", "2023-06-01"}
+      {"anthropic-version", "2023-06-01"},
+      {"Accept", "text/event-stream"}
     ]
+
+    # Start thinking animation
+    spinner = UI.start_thinking_animation("🤖 Claude is analyzing your reading")
 
     case Req.post(@base_url, json: body, headers: headers) do
       {:ok, %{status: 200, body: response}} ->
-        case extract_response_text(response) do
-          {:ok, text} -> {:ok, text}
-          {:error, reason} -> {:error, "Failed to parse response: #{reason}"}
-        end
-
+        UI.stop_thinking_animation(spinner)
+        IO.puts("═══════════════════════════════════════════════════════════════")
+        IO.puts("🤖 AI-Enhanced Interpretation")
+        IO.puts("═══════════════════════════════════════════════════════════════")
+        IO.puts("")
+        
+        # Process streaming response
+        process_streaming_response(response)
+        
       {:ok, %{status: status, body: body}} ->
+        UI.stop_thinking_animation(spinner)
         error_msg = extract_error_message(body)
         {:error, "API request failed (#{status}): #{error_msg}"}
-
+        
       {:error, reason} ->
+        UI.stop_thinking_animation(spinner)
         {:error, "Network error: #{inspect(reason)}"}
     end
   end
+
 
   defp build_prompt(reading, question) do
     %{spread: spread, cards: positioned_cards} = reading
@@ -82,6 +96,50 @@ defmodule TarotAgent.ClaudeService do
 
     Keep the response focused and meaningful, around 200-300 words.
     """
+  end
+
+  defp process_streaming_response(response_body) do
+    alias TarotAgent.UI
+    
+    try do
+      # Handle Server-Sent Events format
+      response_body
+      |> String.split("\n")
+      |> Enum.filter(&String.starts_with?(&1, "data: "))
+      |> Enum.reject(&(&1 == "data: [DONE]"))
+      |> Enum.each(fn line ->
+        case String.replace_prefix(line, "data: ", "") do
+          "" -> :ok
+          json_data ->
+            case Jason.decode(json_data) do
+              {:ok, %{"type" => "content_block_delta", "delta" => %{"text" => text}}} ->
+                UI.stream_text(text, 15)
+                
+              {:ok, %{"type" => "message_stop"}} ->
+                IO.puts("\n")
+                
+              {:ok, _other} ->
+                :ok  # Ignore other event types
+                
+              {:error, _} ->
+                :ok  # Ignore malformed JSON
+            end
+        end
+      end)
+      
+      {:ok, "Streaming completed"}
+      
+    rescue
+      _ ->
+        # Fallback to non-streaming if parsing fails
+        case extract_response_text(response_body) do
+          {:ok, text} -> 
+            UI.stream_text_with_pauses(text)
+            IO.puts("\n")
+            {:ok, text}
+          error -> error
+        end
+    end
   end
 
   defp extract_response_text(%{"content" => [%{"text" => text} | _]}), do: {:ok, text}
