@@ -63,8 +63,9 @@ defmodule TarotAgent.Config do
       case File.read(@env_file) do
         {:ok, content} ->
           case DotenvParser.parse_data(content) do
-            {:ok, env_vars} ->
-              Map.get(env_vars, "ANTHROPIC_API_KEY") || Map.get(env_vars, "CLAUDE_API_KEY")
+            {:ok, env_vars} when is_list(env_vars) ->
+              env_map = Map.new(env_vars)
+              Map.get(env_map, "ANTHROPIC_API_KEY") || Map.get(env_map, "CLAUDE_API_KEY")
 
             {:error, _} ->
               nil
