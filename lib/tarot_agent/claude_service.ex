@@ -29,7 +29,7 @@ defmodule TarotAgent.ClaudeService do
 
     headers = [
       {"Content-Type", "application/json"},
-      {"Authorization", "Bearer #{api_key}"},
+      {"x-api-key", api_key},
       {"anthropic-version", "2023-06-01"}
     ]
 
@@ -111,7 +111,7 @@ defmodule TarotAgent.ClaudeService do
 
       headers = [
         {"Content-Type", "application/json"},
-        {"Authorization", "Bearer #{api_key}"},
+        {"x-api-key", api_key},
         {"anthropic-version", "2023-06-01"}
       ]
 
