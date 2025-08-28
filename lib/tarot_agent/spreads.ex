@@ -166,12 +166,20 @@ defmodule TarotAgent.Spreads do
             card.upright_meaning
           end
 
+        emoji = Cards.get_card_emoji(card.name)
+        reversed_symbol = if reversed, do: " ⟲", else: ""
+        card_visual = if reversed do
+          "#{emoji} ↑⁻¹ #{card.name}#{reversed_symbol}"
+        else
+          "#{emoji} #{card.name}#{reversed_symbol}"
+        end
+        
         """
 
-        #{index}. #{position.name}#{if reversed, do: " ⟲", else: ""}
+        #{index}. #{position.name}#{reversed_symbol}
            #{position.description}
            
-           Card: #{card.name}
+           #{card_visual}
            Meaning: #{meaning}
            Keywords: #{Enum.join(card.keywords, ", ")}
         """

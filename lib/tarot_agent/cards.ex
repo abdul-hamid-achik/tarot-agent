@@ -10,12 +10,99 @@ defmodule TarotAgent.Card do
     :reversed_meaning,
     :description,
     :element,
-    :astrology
+    :astrology,
+    :emoji
   ]
 end
 
 defmodule TarotAgent.Cards do
   alias TarotAgent.Card
+
+  # Emoji mappings for visual card representation
+  @card_emojis %{
+    # Major Arcana
+    "The Fool" => "🃏",
+    "The Magician" => "🪄", 
+    "The High Priestess" => "🌙",
+    "The Empress" => "👑",
+    "The Emperor" => "⚡",
+    "The Hierophant" => "🏛️",
+    "The Lovers" => "💕",
+    "The Chariot" => "🏇",
+    "Strength" => "🦁",
+    "The Hermit" => "🏮", 
+    "Wheel of Fortune" => "🎡",
+    "Justice" => "⚖️",
+    "The Hanged Man" => "🙃",
+    "Death" => "💀",
+    "Temperance" => "🧘",
+    "The Devil" => "😈",
+    "The Tower" => "🗼",
+    "The Star" => "⭐",
+    "The Moon" => "🌕",
+    "The Sun" => "☀️",
+    "Judgement" => "📯",
+    "The World" => "🌍",
+    
+    # Wands (Fire)
+    "1 of Wands" => "🔥", "2 of Wands" => "🔥", "3 of Wands" => "🔥", "4 of Wands" => "🔥", "5 of Wands" => "🔥",
+    "6 of Wands" => "🔥", "7 of Wands" => "🔥", "8 of Wands" => "🔥", "9 of Wands" => "🔥", "10 of Wands" => "🔥",
+    "Page of Wands" => "👤🔥", "Knight of Wands" => "🏇🔥", "Queen of Wands" => "👸🔥", "King of Wands" => "🤴🔥",
+    
+    # Cups (Water)
+    "1 of Cups" => "🏆", "2 of Cups" => "🍷", "3 of Cups" => "🥂", "4 of Cups" => "😑", "5 of Cups" => "😢",
+    "6 of Cups" => "🌸", "7 of Cups" => "💭", "8 of Cups" => "🚶", "9 of Cups" => "😊", "10 of Cups" => "🌈",
+    "Page of Cups" => "👤💧", "Knight of Cups" => "🏇💧", "Queen of Cups" => "👸💧", "King of Cups" => "🤴💧",
+    
+    # Swords (Air)
+    "1 of Swords" => "⚔️", "2 of Swords" => "🤔", "3 of Swords" => "💔", "4 of Swords" => "🛌", "5 of Swords" => "😤",
+    "6 of Swords" => "⛵", "7 of Swords" => "🥷", "8 of Swords" => "🪢", "9 of Swords" => "😰", "10 of Swords" => "🗡️",
+    "Page of Swords" => "👤⚔️", "Knight of Swords" => "🏇⚔️", "Queen of Swords" => "👸⚔️", "King of Swords" => "🤴⚔️",
+    
+    # Pentacles (Earth)  
+    "1 of Pentacles" => "🪙", "2 of Pentacles" => "⚖️", "3 of Pentacles" => "🏗️", "4 of Pentacles" => "💰", "5 of Pentacles" => "🥶",
+    "6 of Pentacles" => "🤝", "7 of Pentacles" => "🌱", "8 of Pentacles" => "🔨", "9 of Pentacles" => "🦚", "10 of Pentacles" => "🏰",
+    "Page of Pentacles" => "👤💰", "Knight of Pentacles" => "🏇💰", "Queen of Pentacles" => "👸💰", "King of Pentacles" => "🤴💰"
+  }
+
+  def get_card_emoji(card_name) do
+    Map.get(@card_emojis, card_name, "🃏")
+  end
+
+  def format_card_visual(card, reversed \\ false) do
+    emoji = get_card_emoji(card.name)
+    
+    if reversed do
+      # Show reversed card with special formatting
+      "#{emoji} ↑⁻¹ #{card.name} (Reversed)"
+    else
+      "#{emoji} #{card.name}"
+    end
+  end
+
+  def create_card_box(card, position_name, reversed \\ false) do
+    emoji = get_card_emoji(card.name)
+    
+    reversed_indicator = if reversed do
+      " ⟲"
+    else
+      ""
+    end
+    
+    card_display = if reversed do
+      "#{emoji} ↑⁻¹ #{card.name}#{reversed_indicator}"
+    else
+      "#{emoji} #{card.name}#{reversed_indicator}"
+    end
+    
+    """
+    ┌─────────────────────────────┐
+    │ #{position_name}
+    │ #{card_display}
+    │ #{String.slice(card.upright_meaning, 0, 27)}...
+    └─────────────────────────────┘
+    """
+  end
 
   @major_arcana [
     %Card{
@@ -25,7 +112,8 @@ defmodule TarotAgent.Cards do
       number: 0,
       keywords: ["beginnings", "innocence", "spontaneity"],
       upright_meaning: "New beginnings, innocence, spontaneity",
-      reversed_meaning: "Recklessness, taken advantage of, inconsideration"
+      reversed_meaning: "Recklessness, taken advantage of, inconsideration",
+      emoji: "🃏"
     },
     %Card{
       id: 1,
@@ -34,7 +122,8 @@ defmodule TarotAgent.Cards do
       number: 1,
       keywords: ["manifestation", "resourcefulness", "power"],
       upright_meaning: "Manifestation, resourcefulness, power, inspired action",
-      reversed_meaning: "Manipulation, poor planning, untapped talents"
+      reversed_meaning: "Manipulation, poor planning, untapped talents",
+      emoji: "🪄"
     },
     %Card{
       id: 2,
@@ -43,7 +132,8 @@ defmodule TarotAgent.Cards do
       number: 2,
       keywords: ["intuition", "sacred knowledge", "divine feminine"],
       upright_meaning: "Intuition, sacred knowledge, divine feminine, the subconscious mind",
-      reversed_meaning: "Secrets, disconnected from intuition, withdrawal and silence"
+      reversed_meaning: "Secrets, disconnected from intuition, withdrawal and silence",
+      emoji: "🌙"
     },
     %Card{
       id: 3,
@@ -52,7 +142,8 @@ defmodule TarotAgent.Cards do
       number: 3,
       keywords: ["femininity", "beauty", "nature"],
       upright_meaning: "Femininity, beauty, nature, nurturing, abundance",
-      reversed_meaning: "Creative block, dependence on others"
+      reversed_meaning: "Creative block, dependence on others",
+      emoji: "👑"
     },
     %Card{
       id: 4,
@@ -61,7 +152,8 @@ defmodule TarotAgent.Cards do
       number: 4,
       keywords: ["authority", "establishment", "structure"],
       upright_meaning: "Authority, establishment, structure, a father figure",
-      reversed_meaning: "Domination, excessive control, lack of discipline, inflexibility"
+      reversed_meaning: "Domination, excessive control, lack of discipline, inflexibility",
+      emoji: "⚡"
     },
     %Card{
       id: 5,
@@ -70,7 +162,8 @@ defmodule TarotAgent.Cards do
       number: 5,
       keywords: ["spiritual wisdom", "religious beliefs", "conformity"],
       upright_meaning: "Spiritual wisdom, religious beliefs, conformity, tradition, institutions",
-      reversed_meaning: "Personal beliefs, freedom, challenging the status quo"
+      reversed_meaning: "Personal beliefs, freedom, challenging the status quo",
+      emoji: "🏛️"
     },
     %Card{
       id: 6,
