@@ -15,7 +15,7 @@ defmodule TarotAgent.ClaudeService do
 
   defp make_claude_request_streaming(reading, question, api_key, model) do
     alias TarotAgent.UI
-    
+
     prompt = build_prompt(reading, question)
 
     body = %{
@@ -47,21 +47,20 @@ defmodule TarotAgent.ClaudeService do
         IO.puts("🤖 AI-Enhanced Interpretation")
         IO.puts("═══════════════════════════════════════════════════════════════")
         IO.puts("")
-        
+
         # Process streaming response
         process_streaming_response(response)
-        
+
       {:ok, %{status: status, body: body}} ->
         UI.stop_thinking_animation(spinner)
         error_msg = extract_error_message(body)
         {:error, "API request failed (#{status}): #{error_msg}"}
-        
+
       {:error, reason} ->
         UI.stop_thinking_animation(spinner)
         {:error, "Network error: #{inspect(reason)}"}
     end
   end
-
 
   defp build_prompt(reading, question) do
     %{spread: spread, cards: positioned_cards} = reading
@@ -100,7 +99,7 @@ defmodule TarotAgent.ClaudeService do
 
   defp process_streaming_response(response_body) do
     alias TarotAgent.UI
-    
+
     try do
       # Handle Server-Sent Events format
       response_body
@@ -109,35 +108,40 @@ defmodule TarotAgent.ClaudeService do
       |> Enum.reject(&(&1 == "data: [DONE]"))
       |> Enum.each(fn line ->
         case String.replace_prefix(line, "data: ", "") do
-          "" -> :ok
+          "" ->
+            :ok
+
           json_data ->
             case Jason.decode(json_data) do
               {:ok, %{"type" => "content_block_delta", "delta" => %{"text" => text}}} ->
                 UI.stream_text(text, 15)
-                
+
               {:ok, %{"type" => "message_stop"}} ->
                 IO.puts("\n")
-                
+
               {:ok, _other} ->
-                :ok  # Ignore other event types
-                
+                # Ignore other event types
+                :ok
+
               {:error, _} ->
-                :ok  # Ignore malformed JSON
+                # Ignore malformed JSON
+                :ok
             end
         end
       end)
-      
+
       {:ok, "Streaming completed"}
-      
     rescue
       _ ->
         # Fallback to non-streaming if parsing fails
         case extract_response_text(response_body) do
-          {:ok, text} -> 
+          {:ok, text} ->
             UI.stream_text_with_pauses(text)
             IO.puts("\n")
             {:ok, text}
-          error -> error
+
+          error ->
+            error
         end
     end
   end

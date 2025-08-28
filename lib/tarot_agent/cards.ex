@@ -22,7 +22,7 @@ defmodule TarotAgent.Cards do
   @card_emojis %{
     # Major Arcana
     "The Fool" => "🃏",
-    "The Magician" => "🪄", 
+    "The Magician" => "🪄",
     "The High Priestess" => "🌙",
     "The Empress" => "👑",
     "The Emperor" => "⚡",
@@ -30,7 +30,7 @@ defmodule TarotAgent.Cards do
     "The Lovers" => "💕",
     "The Chariot" => "🏇",
     "Strength" => "🦁",
-    "The Hermit" => "🏮", 
+    "The Hermit" => "🏮",
     "Wheel of Fortune" => "🎡",
     "Justice" => "⚖️",
     "The Hanged Man" => "🙃",
@@ -43,26 +43,70 @@ defmodule TarotAgent.Cards do
     "The Sun" => "☀️",
     "Judgement" => "📯",
     "The World" => "🌍",
-    
+
     # Wands (Fire)
-    "1 of Wands" => "🔥", "2 of Wands" => "🔥", "3 of Wands" => "🔥", "4 of Wands" => "🔥", "5 of Wands" => "🔥",
-    "6 of Wands" => "🔥", "7 of Wands" => "🔥", "8 of Wands" => "🔥", "9 of Wands" => "🔥", "10 of Wands" => "🔥",
-    "Page of Wands" => "👤🔥", "Knight of Wands" => "🏇🔥", "Queen of Wands" => "👸🔥", "King of Wands" => "🤴🔥",
-    
+    "1 of Wands" => "🔥",
+    "2 of Wands" => "🔥",
+    "3 of Wands" => "🔥",
+    "4 of Wands" => "🔥",
+    "5 of Wands" => "🔥",
+    "6 of Wands" => "🔥",
+    "7 of Wands" => "🔥",
+    "8 of Wands" => "🔥",
+    "9 of Wands" => "🔥",
+    "10 of Wands" => "🔥",
+    "Page of Wands" => "👤🔥",
+    "Knight of Wands" => "🏇🔥",
+    "Queen of Wands" => "👸🔥",
+    "King of Wands" => "🤴🔥",
+
     # Cups (Water)
-    "1 of Cups" => "🏆", "2 of Cups" => "🍷", "3 of Cups" => "🥂", "4 of Cups" => "😑", "5 of Cups" => "😢",
-    "6 of Cups" => "🌸", "7 of Cups" => "💭", "8 of Cups" => "🚶", "9 of Cups" => "😊", "10 of Cups" => "🌈",
-    "Page of Cups" => "👤💧", "Knight of Cups" => "🏇💧", "Queen of Cups" => "👸💧", "King of Cups" => "🤴💧",
-    
+    "1 of Cups" => "🏆",
+    "2 of Cups" => "🍷",
+    "3 of Cups" => "🥂",
+    "4 of Cups" => "😑",
+    "5 of Cups" => "😢",
+    "6 of Cups" => "🌸",
+    "7 of Cups" => "💭",
+    "8 of Cups" => "🚶",
+    "9 of Cups" => "😊",
+    "10 of Cups" => "🌈",
+    "Page of Cups" => "👤💧",
+    "Knight of Cups" => "🏇💧",
+    "Queen of Cups" => "👸💧",
+    "King of Cups" => "🤴💧",
+
     # Swords (Air)
-    "1 of Swords" => "⚔️", "2 of Swords" => "🤔", "3 of Swords" => "💔", "4 of Swords" => "🛌", "5 of Swords" => "😤",
-    "6 of Swords" => "⛵", "7 of Swords" => "🥷", "8 of Swords" => "🪢", "9 of Swords" => "😰", "10 of Swords" => "🗡️",
-    "Page of Swords" => "👤⚔️", "Knight of Swords" => "🏇⚔️", "Queen of Swords" => "👸⚔️", "King of Swords" => "🤴⚔️",
-    
+    "1 of Swords" => "⚔️",
+    "2 of Swords" => "🤔",
+    "3 of Swords" => "💔",
+    "4 of Swords" => "🛌",
+    "5 of Swords" => "😤",
+    "6 of Swords" => "⛵",
+    "7 of Swords" => "🥷",
+    "8 of Swords" => "🪢",
+    "9 of Swords" => "😰",
+    "10 of Swords" => "🗡️",
+    "Page of Swords" => "👤⚔️",
+    "Knight of Swords" => "🏇⚔️",
+    "Queen of Swords" => "👸⚔️",
+    "King of Swords" => "🤴⚔️",
+
     # Pentacles (Earth)  
-    "1 of Pentacles" => "🪙", "2 of Pentacles" => "⚖️", "3 of Pentacles" => "🏗️", "4 of Pentacles" => "💰", "5 of Pentacles" => "🥶",
-    "6 of Pentacles" => "🤝", "7 of Pentacles" => "🌱", "8 of Pentacles" => "🔨", "9 of Pentacles" => "🦚", "10 of Pentacles" => "🏰",
-    "Page of Pentacles" => "👤💰", "Knight of Pentacles" => "🏇💰", "Queen of Pentacles" => "👸💰", "King of Pentacles" => "🤴💰"
+    "1 of Pentacles" => "🪙",
+    "2 of Pentacles" => "⚖️",
+    "3 of Pentacles" => "🏗️",
+    "4 of Pentacles" => "💰",
+    "5 of Pentacles" => "🥶",
+    "6 of Pentacles" => "🤝",
+    "7 of Pentacles" => "🌱",
+    "8 of Pentacles" => "🔨",
+    "9 of Pentacles" => "🦚",
+    "10 of Pentacles" => "🏰",
+    "Page of Pentacles" => "👤💰",
+    "Knight of Pentacles" => "🏇💰",
+    "Queen of Pentacles" => "👸💰",
+    "King of Pentacles" => "🤴💰"
   }
 
   def get_card_emoji(card_name) do
@@ -71,7 +115,7 @@ defmodule TarotAgent.Cards do
 
   def format_card_visual(card, reversed \\ false) do
     emoji = get_card_emoji(card.name)
-    
+
     if reversed do
       # Show reversed card with special formatting
       "#{emoji} ↑⁻¹ #{card.name} (Reversed)"
@@ -82,19 +126,21 @@ defmodule TarotAgent.Cards do
 
   def create_card_box(card, position_name, reversed \\ false) do
     emoji = get_card_emoji(card.name)
-    
-    reversed_indicator = if reversed do
-      " ⟲"
-    else
-      ""
-    end
-    
-    card_display = if reversed do
-      "#{emoji} ↑⁻¹ #{card.name}#{reversed_indicator}"
-    else
-      "#{emoji} #{card.name}#{reversed_indicator}"
-    end
-    
+
+    reversed_indicator =
+      if reversed do
+        " ⟲"
+      else
+        ""
+      end
+
+    card_display =
+      if reversed do
+        "#{emoji} ↑⁻¹ #{card.name}#{reversed_indicator}"
+      else
+        "#{emoji} #{card.name}#{reversed_indicator}"
+      end
+
     """
     ┌─────────────────────────────┐
     │ #{position_name}

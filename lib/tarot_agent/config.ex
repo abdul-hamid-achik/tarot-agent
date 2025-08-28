@@ -64,27 +64,32 @@ defmodule TarotAgent.Config do
         {:ok, content} ->
           case DotenvParser.parse_data(content) do
             {:ok, env_vars} ->
-              env_map = case env_vars do
-                list when is_list(list) -> Map.new(list)
-                map when is_map(map) -> map
-                _ -> %{}
-              end
-              Map.get(env_map, "ANTHROPIC_API_KEY") || 
-              Map.get(env_map, "CLAUDE_API_KEY") ||
-              Map.get(env_map, "TAROT_AGENT_ANTHROPIC_API_KEY")
+              env_map =
+                case env_vars do
+                  list when is_list(list) -> Map.new(list)
+                  map when is_map(map) -> map
+                  _ -> %{}
+                end
+
+              Map.get(env_map, "ANTHROPIC_API_KEY") ||
+                Map.get(env_map, "CLAUDE_API_KEY") ||
+                Map.get(env_map, "TAROT_AGENT_ANTHROPIC_API_KEY")
 
             {:error, _} ->
               nil
-              
+
             result ->
               # Handle unexpected return format - convert list to map if needed
               case result do
-                list when is_list(list) -> 
+                list when is_list(list) ->
                   env_map = Map.new(list)
-                  Map.get(env_map, "ANTHROPIC_API_KEY") || 
-              Map.get(env_map, "CLAUDE_API_KEY") ||
-              Map.get(env_map, "TAROT_AGENT_ANTHROPIC_API_KEY")
-                _ -> nil
+
+                  Map.get(env_map, "ANTHROPIC_API_KEY") ||
+                    Map.get(env_map, "CLAUDE_API_KEY") ||
+                    Map.get(env_map, "TAROT_AGENT_ANTHROPIC_API_KEY")
+
+                _ ->
+                  nil
               end
           end
 

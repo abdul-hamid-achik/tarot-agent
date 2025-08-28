@@ -61,21 +61,24 @@ defmodule TarotAgentTest do
   test "UI can stream text" do
     # Capture IO to test text streaming
     import ExUnit.CaptureIO
-    
-    output = capture_io(fn ->
-      UI.stream_text("Hello", 1)  # Very fast for testing
-    end)
-    
+
+    output =
+      capture_io(fn ->
+        # Very fast for testing
+        UI.stream_text("Hello", 1)
+      end)
+
     assert output == "Hello"
   end
 
   test "UI can create fancy headers" do
     import ExUnit.CaptureIO
-    
-    output = capture_io(fn ->
-      UI.fancy_header("Test Title", "Test Subtitle")
-    end)
-    
+
+    output =
+      capture_io(fn ->
+        UI.fancy_header("Test Title", "Test Subtitle")
+      end)
+
     assert output =~ "Test Title"
     assert output =~ "Test Subtitle"
     assert output =~ "╔"
@@ -85,9 +88,9 @@ defmodule TarotAgentTest do
   test "UI spinner animation starts and stops" do
     spinner_task = UI.start_thinking_animation("Test message")
     assert Process.alive?(spinner_task.pid)
-    
+
     UI.stop_thinking_animation(spinner_task)
-    
+
     # Give it a moment to shut down
     Process.sleep(10)
     refute Process.alive?(spinner_task.pid)
@@ -103,7 +106,8 @@ defmodule TarotAgentTest do
   test "config can get claude model with default" do
     model = Config.get_claude_model()
     assert is_binary(model)
-    assert model == "claude-3-haiku-20240307"  # Default value
+    # Default value
+    assert model == "claude-3-haiku-20240307"
   end
 
   test "config API key functions don't crash" do
@@ -117,14 +121,15 @@ defmodule TarotAgentTest do
   test "claude service handles missing API key" do
     # Mock a reading
     {:ok, reading} = Spreads.perform_reading("single")
-    
+
     # Should return error for missing API key when API key is nil
     result = ClaudeService.enhance_reading(reading, "test question", nil)
-    
+
     case result do
-      {:error, message} -> 
+      {:error, message} ->
         assert message =~ "API key"
-      {:ok, _} -> 
+
+      {:ok, _} ->
         # If API key exists in env, that's also valid
         assert true
     end
@@ -132,39 +137,50 @@ defmodule TarotAgentTest do
 
   test "claude service test_api_key handles missing key" do
     result = ClaudeService.test_api_key(nil)
-    
+
     case result do
       {:error, "No API key found"} -> assert true
-      {:error, _other_error} -> assert true  # Valid if key exists but has other issues
-      {:ok, _} -> assert true  # Valid if key exists and works
+      # Valid if key exists but has other issues
+      {:error, _other_error} -> assert true
+      # Valid if key exists and works
+      {:ok, _} -> assert true
     end
   end
 
   # Integration Tests
   test "full reading workflow completes without crashing" do
     import ExUnit.CaptureIO
-    
+
     # Capture output to prevent spam during testing
-    _output = capture_io(fn ->
-      {:ok, reading} = Spreads.perform_reading("past-present-future")
-      
-      # Should not crash even if no API key
-      _result = ClaudeService.enhance_reading(reading, "test question")
-      
-      # Format should work
-      formatted = Spreads.format_reading(reading)
-      assert is_binary(formatted)
-    end)
-    
+    _output =
+      capture_io(fn ->
+        {:ok, reading} = Spreads.perform_reading("past-present-future")
+
+        # Should not crash even if no API key
+        _result = ClaudeService.enhance_reading(reading, "test question")
+
+        # Format should work
+        formatted = Spreads.format_reading(reading)
+        assert is_binary(formatted)
+      end)
+
     # If we get here, no crashes occurred
     assert true
   end
 
   test "all spreads can be performed" do
-    spreads_list = ["single", "past-present-future", "celtic-cross", 
-                   "relationship", "decision", "chakra", "horseshoe", 
-                   "year-ahead", "mind-body-spirit"]
-    
+    spreads_list = [
+      "single",
+      "past-present-future",
+      "celtic-cross",
+      "relationship",
+      "decision",
+      "chakra",
+      "horseshoe",
+      "year-ahead",
+      "mind-body-spirit"
+    ]
+
     Enum.each(spreads_list, fn spread_name ->
       {:ok, reading} = Spreads.perform_reading(spread_name)
       assert is_map(reading)
@@ -179,7 +195,7 @@ defmodule TarotAgentTest do
     |> Enum.each(fn count ->
       cards = Cards.draw_cards(count)
       assert length(cards) == count
-      
+
       Enum.each(cards, fn card ->
         assert card.__struct__ == TarotAgent.Card
         assert is_binary(card.name)

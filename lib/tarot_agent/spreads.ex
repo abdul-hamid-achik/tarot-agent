@@ -168,12 +168,14 @@ defmodule TarotAgent.Spreads do
 
         emoji = Cards.get_card_emoji(card.name)
         reversed_symbol = if reversed, do: " ⟲", else: ""
-        card_visual = if reversed do
-          "#{emoji} ↑⁻¹ #{card.name}#{reversed_symbol}"
-        else
-          "#{emoji} #{card.name}#{reversed_symbol}"
-        end
-        
+
+        card_visual =
+          if reversed do
+            "#{emoji} ↑⁻¹ #{card.name}#{reversed_symbol}"
+          else
+            "#{emoji} #{card.name}#{reversed_symbol}"
+          end
+
         """
 
         #{index}. #{position.name}#{reversed_symbol}
