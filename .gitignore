@@ -21,3 +21,13 @@ tarot_agent-*.tar
 
 # Temporary files, for example, from tests.
 tmp/
+
+# Ignore locally built binaries (they should be built in CI/CD)
+tarot_agent
+tarot_agent.exe
+
+# Environment and config files with secrets
+.env
+
+# MacOS files
+.DS_Store
