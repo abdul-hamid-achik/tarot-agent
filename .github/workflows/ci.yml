@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        otp: ['26.0', '27.0']
+        elixir: ['1.17', '1.18']
+        exclude:
+          - otp: '27.0'
+            elixir: '1.17'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      id: beam
+      with:
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
+    
+    - name: Restore dependencies cache
+      uses: actions/cache@v4
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    
+    - name: Install dependencies
+      run: mix deps.get
+    
+    - name: Check formatting
+      run: mix format --check-formatted
+      if: matrix.elixir == '1.18'
+    
+    - name: Run tests with coverage
+      run: mix coveralls.json
+      env:
+        MIX_ENV: test
+      if: matrix.elixir == '1.18' && matrix.otp == '27.0'
+    
+    - name: Run tests
+      run: mix test
+      env:
+        MIX_ENV: test
+      if: matrix.elixir != '1.18' || matrix.otp != '27.0'
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      if: matrix.elixir == '1.18' && matrix.otp == '27.0'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./cover/excoveralls.json
+        fail_ci_if_error: true
+        verbose: true
+        name: codecov-umbrella
+        flags: unittests
+
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: '27.0'
+        elixir-version: '1.18'
+    
+    - name: Restore dependencies cache
+      uses: actions/cache@v4
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    
+    - name: Install dependencies
+      run: mix deps.get
+    
+    - name: Check compilation warnings
+      run: mix compile --warnings-as-errors
+    
+    - name: Run Credo
+      run: mix credo --strict
+      continue-on-error: true
+    
+    - name: Check security vulnerabilities
+      run: mix deps.audit
+      continue-on-error: true
+    
+    - name: Check unused dependencies
+      run: mix deps.unlock --check-unused
+      continue-on-error: true
